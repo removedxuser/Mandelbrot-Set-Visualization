@@ -10,7 +10,7 @@ public class FractalExplorer extends JFrame {
 
   static final int WIDTH = 600;
   static final int HEIGHT = 600;
-  static final int MAX_ITERATIONS = 50;
+  static final int MAX_ITERATIONS = 500;
   static final double DEFAULT_ZOOM = 100.0;
   static final double DEFAULT_TOP_LEFT_X = -3.0;
   static final double DEFAULT_TOP_LEFT_Y = +3.0;
@@ -23,12 +23,16 @@ public class FractalExplorer extends JFrame {
   Canvas canvas;
   BufferedImage fractalImage;
 
+  // ---------------------------------------------------------------------------------------------------
+
   public FractalExplorer() {
     setInitialGUIProperties();
     addCanvas();
     this.setVisible(true);
     updateFractal();
   }
+
+  // ----------------------------------------------------------------------------------------------------
 
   public void updateFractal() {
     for (int x=0; x < WIDTH; x++) {
@@ -45,21 +49,34 @@ public class FractalExplorer extends JFrame {
     canvas.repaint();
   }
 
+  // ----------------------------------------------------------------------------------------------------
+
   private int putColor(int iterCount) {
+
+    int color = 0b011110100000101101101110;
+    int mask = 0b000000000000011111010110;
+    int shiftMag = iterCount / 3;
+
     if (iterCount == MAX_ITERATIONS) {
       return Color.BLACK.getRGB();
     }
 
-    return Color.BLUE.getRGB();
+    return color | (mask << shiftMag);
   }
+
+  // ----------------------------------------------------------------------------------------------------
 
   public double getXPos(double x) {
     return x/zoomFactor + topLeftX;
   }
 
+  // ----------------------------------------------------------------------------------------------------
+
   public double getYPos(double y) {
     return y/zoomFactor - topLeftY;
   }
+
+  // ----------------------------------------------------------------------------------------------------
 
   private void addCanvas() {
     canvas = new Canvas();
@@ -67,6 +84,8 @@ public class FractalExplorer extends JFrame {
     canvas.setVisible(true);
     this.add(canvas, BorderLayout.CENTER);
   }
+
+  // ----------------------------------------------------------------------------------------------------
 
   private int computeIterations(double c_r, double c_i) {
     /*
@@ -98,7 +117,9 @@ public class FractalExplorer extends JFrame {
     }
 
     return count;
-}
+  }
+
+  // ----------------------------------------------------------------------------------------------------
 
   public void setInitialGUIProperties() {
     this.setTitle("Fractal Explorer");
@@ -106,19 +127,62 @@ public class FractalExplorer extends JFrame {
     this.setSize(WIDTH, HEIGHT);
     this.setResizable(false);
     this.setLocationRelativeTo(null);
-
   }
+
+  // ----------------------------------------------------------------------------------------------------
 
   public static void main (String[] args) {
     new FractalExplorer();
   }
 
-  private class Canvas extends JPanel {
+  // ----------------------------------------------------------------------------------------------------
+
+  private void adjustZoom(double newX, double newY, double newZoomFactor) {
+
+    // shift x and y position by the  ratio of zoomfactor
+    topLeftX += newX/zoomFactor;
+    topLeftY -= newY/zoomFactor;
+
+    zoomFactor = newZoomFactor;
+
+    // recenter x and y
+    topLeftX -= (WIDTH / 2) / zoomFactor;
+    topLeftY += (HEIGHT / 2) / zoomFactor;
+
+    updateFractal();
+  }
+
+  // ----------------------------------------------------------------------------------------------------
+
+  private class Canvas extends JPanel implements MouseListener {
+
+    public Canvas() {
+      addMouseListener(this);
+    }
+
     @Override public Dimension getPreferredSize() {
 			return new Dimension(WIDTH, HEIGHT);
 		}
     @Override public void paintComponent(Graphics drawingObj) {
       drawingObj.drawImage(fractalImage, 0, 0, null);
     }
+
+    @Override public void mousePressed(MouseEvent mouse) {
+      double x = (double) mouse.getX();
+      double y = (double) mouse.getY();
+
+      switch (mouse.getButton()) {
+        case MouseEvent.BUTTON1:
+          adjustZoom(x,y,zoomFactor*2);
+          break;
+        case MouseEvent.BUTTON3:
+          adjustZoom(x,y,zoomFactor/2);
+          break;
+      }
+    }
+    @Override public void mouseReleased(MouseEvent mouse) {}
+    @Override public void mouseEntered(MouseEvent mouse) {}
+    @Override public void mouseClicked(MouseEvent mouse) {}
+    @Override public void mouseExited(MouseEvent mouse) {}
   }
 }
