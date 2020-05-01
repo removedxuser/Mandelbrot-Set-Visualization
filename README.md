@@ -1,3 +1,5 @@
+
+
 # Follow the steps below to get the project running locally.
 
 
@@ -11,3 +13,9 @@
 #
 ```
 java fractalExplorer.java
+```
+
+# Some pics
+
+![Fractal Image 1](images/Capture1.PNG)
+![Fractal Image 1](images/Capture2.PNG)
