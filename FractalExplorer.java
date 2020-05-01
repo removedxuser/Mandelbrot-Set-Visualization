@@ -54,8 +54,8 @@ public class FractalExplorer extends JFrame {
   private int putColor(int iterCount) {
 
     int color = 0b011110100000101101101110;
-    int mask = 0b000000000000011111010110;
-    int shiftMag = iterCount / 3;
+    int mask = 0b000000000000011111111111;
+    int shiftMag = iterCount / 5;
 
     if (iterCount == MAX_ITERATIONS) {
       return Color.BLACK.getRGB();
